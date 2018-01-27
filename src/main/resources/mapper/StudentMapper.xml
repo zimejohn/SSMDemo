@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zime.maven.dao.StudentMapper">
+	<resultMap id="BaseResultMap" type="com.zime.maven.entity.Student">
+		<id column="ID" jdbcType="INTEGER" property="id" />
+		<result column="Name" jdbcType="VARCHAR" property="name" />
+		<result column="Gender" jdbcType="VARCHAR" property="gender" />
+		<result column="Email" jdbcType="VARCHAR" property="email" />
+		<result column="Phone" jdbcType="VARCHAR" property="phone" />
+		<result column="Birth" jdbcType="TIMESTAMP" property="birth" />
+		<result column="Reg_Time" jdbcType="TIMESTAMP" property="regTime" />
+		<result column="Major_ID" jdbcType="INTEGER" property="majorId" />
+	</resultMap>
+
+	<resultMap id="WithMajorResultMap" type="com.zime.maven.entity.Student">
+		<id column="ID" jdbcType="INTEGER" property="id" />
+		<result column="Name" jdbcType="VARCHAR" property="name" />
+		<result column="Gender" jdbcType="VARCHAR" property="gender" />
+		<result column="Email" jdbcType="VARCHAR" property="email" />
+		<result column="Phone" jdbcType="VARCHAR" property="phone" />
+		<result column="Birth" jdbcType="TIMESTAMP" property="birth" />
+		<result column="Reg_Time" jdbcType="TIMESTAMP" property="regTime" />
+		<result column="Major_ID" jdbcType="INTEGER" property="majorId" />
+		<association property="major" javaType="com.zime.maven.entity.Major">
+			<id column="MAJOR_ID" property="majorId" />
+			<result column="MAJOR_NAME" property="majorName" />
+		</association>
+	</resultMap>
+
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" prefixOverrides="and" suffix=")">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach close=")" collection="criterion.value" item="listItem"
+										open="(" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		ID, Name, Gender, Email, Phone, Birth, Reg_Time, Major_ID
+	</sql>
+	<sql id="WithMajor_Column_List">
+		s.ID, s.Name, s.Gender, s.Email, s.Phone, s.Birth,s.Reg_Time,s.Major_ID,m.MAJOR_ID,m.MAJOR_NAME
+	</sql>
+	<!-- List<Student> selectByExampleWithMajor(StudentExample example); 
+	Student selectByPrimaryKeyWithMajor(Integer id); -->
+
+    <select id="selectByExampleWithMajor" resultMap="WithMajorResultMap">
+    		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="WithMajor_Column_List" />
+		FROM mvn_student s LEFT OUTER JOIN mvn_major m on s.Major_ID= m.MAJOR_ID
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+    </select>
+    <select id="selectByPrimaryKeyWithMajor" resultMap="WithMajorResultMap">
+    		select
+		<include refid="WithMajor_Column_List" />
+		FROM mvn_student s LEFT OUTER JOIN mvn_major m on s.Major_ID= m.MAJOR_ID
+		where ID = #{id,jdbcType=INTEGER}
+    </select>
+	<select id="selectByExample" parameterType="com.zime.maven.entity.StudentExample"
+		resultMap="BaseResultMap">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from mvn_student
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from mvn_student
+		where ID = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		mvn_student
+		where ID = #{id,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.zime.maven.entity.StudentExample">
+		delete from mvn_student
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.zime.maven.entity.Student">
+		insert into mvn_student (ID,
+		Name, Gender,
+		Email, Phone, Birth,
+		Reg_Time, Major_ID)
+		values
+		(#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+		#{gender,jdbcType=VARCHAR},
+		#{email,jdbcType=VARCHAR},
+		#{phone,jdbcType=VARCHAR}, #{birth,jdbcType=TIMESTAMP},
+		#{regTime,jdbcType=TIMESTAMP}, #{majorId,jdbcType=INTEGER})
+	</insert>
+	<insert id="insertSelective" parameterType="com.zime.maven.entity.Student">
+		insert into mvn_student
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="name != null">
+				Name,
+			</if>
+			<if test="gender != null">
+				Gender,
+			</if>
+			<if test="email != null">
+				Email,
+			</if>
+			<if test="phone != null">
+				Phone,
+			</if>
+			<if test="birth != null">
+				Birth,
+			</if>
+			<if test="regTime != null">
+				Reg_Time,
+			</if>
+			<if test="majorId != null">
+				Major_ID,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="gender != null">
+				#{gender,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				#{email,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				#{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="birth != null">
+				#{birth,jdbcType=TIMESTAMP},
+			</if>
+			<if test="regTime != null">
+				#{regTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="majorId != null">
+				#{majorId,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.zime.maven.entity.StudentExample"
+		resultType="java.lang.Long">
+		select count(*) from mvn_student
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update mvn_student
+		<set>
+			<if test="record.id != null">
+				ID = #{record.id,jdbcType=INTEGER},
+			</if>
+			<if test="record.name != null">
+				Name = #{record.name,jdbcType=VARCHAR},
+			</if>
+			<if test="record.gender != null">
+				Gender = #{record.gender,jdbcType=VARCHAR},
+			</if>
+			<if test="record.email != null">
+				Email = #{record.email,jdbcType=VARCHAR},
+			</if>
+			<if test="record.phone != null">
+				Phone = #{record.phone,jdbcType=VARCHAR},
+			</if>
+			<if test="record.birth != null">
+				Birth = #{record.birth,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.regTime != null">
+				Reg_Time = #{record.regTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.majorId != null">
+				Major_ID = #{record.majorId,jdbcType=INTEGER},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update mvn_student
+		set ID = #{record.id,jdbcType=INTEGER},
+		Name =
+		#{record.name,jdbcType=VARCHAR},
+		Gender =
+		#{record.gender,jdbcType=VARCHAR},
+		Email =
+		#{record.email,jdbcType=VARCHAR},
+		Phone =
+		#{record.phone,jdbcType=VARCHAR},
+		Birth =
+		#{record.birth,jdbcType=TIMESTAMP},
+		Reg_Time =
+		#{record.regTime,jdbcType=TIMESTAMP},
+		Major_ID =
+		#{record.majorId,jdbcType=INTEGER}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.zime.maven.entity.Student">
+		update mvn_student
+		<set>
+			<if test="name != null">
+				Name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="gender != null">
+				Gender = #{gender,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+				Email = #{email,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				Phone = #{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="birth != null">
+				Birth = #{birth,jdbcType=TIMESTAMP},
+			</if>
+			<if test="regTime != null">
+				Reg_Time = #{regTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="majorId != null">
+				Major_ID = #{majorId,jdbcType=INTEGER},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.zime.maven.entity.Student">
+		update mvn_student
+		set Name = #{name,jdbcType=VARCHAR},
+		Gender =
+		#{gender,jdbcType=VARCHAR},
+		Email = #{email,jdbcType=VARCHAR},
+		Phone =
+		#{phone,jdbcType=VARCHAR},
+		Birth = #{birth,jdbcType=TIMESTAMP},
+		Reg_Time = #{regTime,jdbcType=TIMESTAMP},
+		Major_ID =
+		#{majorId,jdbcType=INTEGER}
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>
